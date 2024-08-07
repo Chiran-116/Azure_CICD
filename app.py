@@ -21,7 +21,7 @@ def make_prediction(model, input_data):
 st.sidebar.title("Model Selection")
 model_choice = st.sidebar.selectbox("Choose Model", ["Decision Tree", "Random Forest", "Gradient Boosting"])
 
-st.sidebar.title("Project Information")
+st.sidebar.title("Project Info")
 st.sidebar.info("""
 This application predicts whether an online payment transaction is fraudulent based on the transaction type, 
 amount, and balance information. 
