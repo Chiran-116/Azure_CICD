@@ -17,21 +17,40 @@ def make_prediction(model, input_data):
     prediction = model.predict(np.array(input_data).reshape(1, -1))
     return prediction[0]
 
-# Streamlit UI
-st.title("Online Payment Fraud Detection")
+# Sidebar
+st.sidebar.title("Model Selection")
+model_choice = st.sidebar.selectbox("Choose Model", ["Decision Tree", "Random Forest", "Gradient Boosting"])
+
+st.sidebar.title("Project Information")
+st.sidebar.info("""
+This application predicts whether an online payment transaction is fraudulent based on the transaction type, 
+amount, and balance information. 
+Choose a model from the dropdown menu to make a prediction.
+""")
+
+# Main UI
+st.title("🔍 Online Payment Fraud Detection")
+st.subheader("Predict whether a transaction is fraudulent based on its details.")
+
+st.markdown("""
+Please provide the details of the transaction below and choose a model to make a prediction.
+""")
 
 # User input
-transaction_type = st.selectbox("Transaction Type", ["CASH_OUT", "PAYMENT", "CASH_IN", "TRANSFER", "DEBIT"])
-amount = st.number_input("Transaction Amount")
-oldbalanceOrg = st.number_input("Old Balance of Origin")
-newbalanceOrig = st.number_input("New Balance of Origin")
+st.markdown("### Transaction Details")
+col1, col2 = st.columns(2)
+
+with col1:
+    transaction_type = st.selectbox("Transaction Type", ["CASH_OUT", "PAYMENT", "CASH_IN", "TRANSFER", "DEBIT"])
+    amount = st.number_input("Transaction Amount", min_value=0.0, format="%0.2f")
+    
+with col2:
+    oldbalanceOrg = st.number_input("Old Balance of Origin", min_value=0.0, format="%0.2f")
+    newbalanceOrig = st.number_input("New Balance of Origin", min_value=0.0, format="%0.2f")
 
 # Mapping transaction type to numerical value
 transaction_type_mapping = {"CASH_OUT": 1, "PAYMENT": 2, "CASH_IN": 3, "TRANSFER": 4, "DEBIT": 5}
 transaction_type_num = transaction_type_mapping[transaction_type]
-
-# Model selection
-model_choice = st.selectbox("Choose Model", ["Decision Tree", "Random Forest", "Gradient Boosting"])
 
 # Prediction button
 if st.button("Predict"):
@@ -44,6 +63,16 @@ if st.button("Predict"):
     else:
         prediction = make_prediction(gradient_boosting_model, input_data)
     
-    st.write("Prediction: ", "Fraud" if prediction == 'Fraud' else "Not Fraud")
+    st.markdown("### Prediction Result")
+    if prediction == 'Fraud':
+        st.error("🚨 The transaction is predicted to be **Fraudulent**.")
+    else:
+        st.success("✅ The transaction is predicted to be **Not Fraudulent**.")
 
-# To run this app, use the command: streamlit run app.py
+    st.markdown("""
+    ### Prediction Details
+    - **Transaction Type:** {}
+    - **Transaction Amount:** ${:.2f}
+    - **Old Balance of Origin:** ${:.2f}
+    - **New Balance of Origin:** ${:.2f}
+    """.format(transaction_type, amount, oldbalanceOrg, newbalanceOrig))
